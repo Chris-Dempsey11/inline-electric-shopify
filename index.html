@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inline Electric × Shopify — System Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #000;
+  font-family: 'Inter', system-ui, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ─── SLIDE SHELL ─── */
+.presentation { position: relative; width: 100vw; height: 100vh; }
+
+.slide {
+  position: absolute; inset: 0;
+  background: #0a0f0d;
+  display: flex; flex-direction: column;
+  padding: 36px 56px 28px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s ease;
+  overflow: hidden;
+  border-top: 3px solid #008060;
+}
+.slide.active { opacity: 1; pointer-events: all; }
+
+/* Background art */
+.bg-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,128,96,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,128,96,.04) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.bg-glow {
+  position: absolute; top: -180px; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 500px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,128,96,.11) 0%, transparent 68%);
+  pointer-events: none;
+}
+.bg-glow-br {
+  position: absolute; bottom: -100px; right: -100px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,128,96,.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ─── SLIDE HEADER ─── */
+.slide-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 26px; position: relative; z-index: 1; flex-shrink: 0;
+}
+.slide-logo { display: flex; align-items: center; gap: 9px; }
+.wm { display: flex; flex-direction: column; line-height: 1.12; }
+.wm-main { font-size: 12px; font-weight: 900; color: #fff; letter-spacing: 1.2px; }
+.wm-sub  { font-size: 7.5px; font-weight: 600; color: rgba(255,255,255,.38); letter-spacing: 1px; text-transform: uppercase; }
+.hdr-div { width: 1px; height: 16px; background: rgba(255,255,255,.13); margin: 0 8px; }
+.hdr-section { font-size: 9.5px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,.28); }
+.hdr-page { margin-left: auto; font-size: 9.5px; font-weight: 600; color: rgba(255,255,255,.22); letter-spacing: .5px; }
+
+/* ─── SLIDE FOOTER ─── */
+.slide-footer {
+  position: relative; z-index: 1; flex-shrink: 0;
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,.055); padding-top: 12px;
+}
+.sfl { font-size: 9px; color: rgba(255,255,255,.18); letter-spacing: .4px; }
+.sfd { display: flex; gap: 5px; align-items: center; }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.14); transition: .2s; }
+.dot.on { background: #008060; box-shadow: 0 0 5px rgba(0,128,96,.7); }
+
+/* ─── CONTENT AREA ─── */
+.sc { flex: 1; position: relative; z-index: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ─── TYPOGRAPHY ─── */
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #00c878; margin-bottom: 8px; }
+.stitle  { font-size: clamp(1.55rem, 2.5vw, 2.25rem); font-weight: 900; letter-spacing: -.8px; color: #fff; line-height: 1.1; margin-bottom: 6px; }
+.sdesc   { font-size: 13px; color: rgba(255,255,255,.42); line-height: 1.6; margin-bottom: 22px; }
+.stitle .y { color: #00c878; }
+
+/* ─── CARDS ─── */
+.ycard {
+  background: linear-gradient(135deg, #001a12, #000e08);
+  border: 1.5px solid rgba(0,128,96,.3); border-radius: 14px; padding: 20px;
+  position: relative; overflow: hidden;
+}
+.ycard::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #008060, transparent);
+}
+.dkcard {
+  background: rgba(0,128,96,.05); border: 1px solid rgba(0,128,96,.15);
+  border-radius: 12px; padding: 16px 18px;
+}
+
+/* ─── GRIDS ─── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+/* ─── BULLETS ─── */
+.blist { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.blist li { display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; color: rgba(255,255,255,.65); line-height: 1.45; }
+.blist li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #008060; flex-shrink: 0; margin-top: 5px; }
+
+/* ─── CHIPS ─── */
+.cy { display: inline-block; background: rgba(0,128,96,.1); border: 1px solid rgba(0,128,96,.25); border-radius: 100px; padding: 3px 11px; font-size: 9.5px; font-weight: 700; color: #4de3a8; letter-spacing: .3px; }
+.cb { display: inline-block; background: rgba(0,160,220,.12); border: 1px solid rgba(0,160,220,.28); border-radius: 100px; padding: 3px 11px; font-size: 9.5px; font-weight: 700; color: #60c8f0; letter-spacing: .3px; }
+.cg { display: inline-block; background: rgba(100,200,100,.1); border: 1px solid rgba(100,200,100,.25); border-radius: 100px; padding: 3px 11px; font-size: 9.5px; font-weight: 700; color: #7dd87d; letter-spacing: .3px; }
+
+/* ─── NAVIGATION ─── */
+.nav-overlay {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 14px; z-index: 200;
+  background: linear-gradient(transparent, rgba(0,0,0,.55));
+  opacity: 0; transition: opacity .3s;
+}
+.nav-overlay:hover, .nav-overlay:focus-within { opacity: 1; }
+.nbtn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0,128,96,.14); border: 1.5px solid rgba(0,128,96,.38);
+  color: #00c878; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s; line-height: 1;
+}
+.nbtn:hover { background: rgba(0,128,96,.28); }
+.ncnt { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.45); min-width: 52px; text-align: center; }
+
+/* ═══════════════════════════════════════════════════════════
+   SLIDE-SPECIFIC
+═══════════════════════════════════════════════════════════ */
+
+/* S1 — COVER */
+.cover-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.cover-x-logo { display: flex; align-items: center; gap: 20px; margin-bottom: 32px; }
+.cover-diamond svg { filter: drop-shadow(0 0 20px rgba(0,128,96,.4)); }
+.cover-x { font-size: 28px; font-weight: 300; color: rgba(255,255,255,.2); }
+.cover-shopify-logo { display: flex; align-items: center; gap: 10px; }
+.cover-shopify-logo span { font-size: 20px; font-weight: 800; color: rgba(255,255,255,.55); }
+.cover-title {
+  font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 900;
+  letter-spacing: -3px; color: #fff; line-height: 1.0; margin-bottom: 14px;
+}
+.cover-title .y { color: #00c878; }
+.cover-sub { font-size: 16px; font-weight: 400; color: rgba(255,255,255,.38); margin-bottom: 36px; letter-spacing: .5px; }
+.cover-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,128,96,.1); border: 1.5px solid rgba(0,128,96,.3);
+  border-radius: 100px; padding: 9px 20px;
+  font-size: 12px; font-weight: 700; color: #00c878; letter-spacing: .5px;
+}
+.cover-cdot { width: 7px; height: 7px; border-radius: 50%; background: #008060; box-shadow: 0 0 8px rgba(0,128,96,.9); }
+
+/* S2 — INNOVATION */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.stat-card { background: rgba(0,128,96,.07); border: 1.5px solid rgba(0,128,96,.25); border-radius: 14px; padding: 20px 24px; text-align: center; }
+.stat-num { font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; color: #00c878; letter-spacing: -2px; line-height: 1; margin-bottom: 6px; }
+.stat-lbl { font-size: 11px; color: rgba(255,255,255,.45); line-height: 1.5; }
+
+.fpill {
+  background: rgba(0,128,96,.07); border: 1px solid rgba(0,128,96,.18);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.72);
+  display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 130px;
+}
+.fpill strong { color: #4de3a8; font-size: 11.5px; }
+.fpill small { color: rgba(255,255,255,.38); font-size: 9.5px; font-weight: 500; line-height: 1.4; }
+.fpill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* S3 — FORRESTER */
+.fw-badge {
+  background: linear-gradient(135deg, #001a12, #000e08);
+  border: 2px solid rgba(0,128,96,.45); border-radius: 18px;
+  padding: 28px 36px; text-align: center; max-width: 440px;
+  position: relative;
+}
+.fw-badge::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(90deg, transparent, #008060, transparent);
+}
+.fw-wave { font-size: 9.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 10px; }
+.fw-title { font-size: 2.8rem; font-weight: 900; color: #00c878; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
+.fw-sub { font-size: 12.5px; color: rgba(255,255,255,.45); line-height: 1.55; }
+
+/* S4 — ECOSYSTEM */
+.eco-grid { display: grid; gap: 7px; }
+.ec {
+  background: rgba(0,128,96,.055); border: 1px solid rgba(0,128,96,.13);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,.6);
+  text-align: center; line-height: 1.3;
+}
+.ec.hi { background: rgba(0,128,96,.13); border-color: rgba(0,128,96,.3); color: #4de3a8; }
+
+/* S6 — 1ST PARTY APPS */
+.app-tile {
+  background: rgba(0,128,96,.07); border: 1.5px solid rgba(0,128,96,.2);
+  border-radius: 12px; padding: 14px 12px;
+  text-align: center; font-size: 10px; font-weight: 800;
+  color: #4de3a8; letter-spacing: .5px; text-transform: uppercase;
+  line-height: 1.35; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  justify-content: center;
+}
+
+/* S7 — B2B WHY */
+.b2bs { background: rgba(0,128,96,.05); border: 1px solid rgba(0,128,96,.15); border-radius: 12px; padding: 14px 16px; }
+.b2bs-title { font-size: 9.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #00c878; margin-bottom: 8px; }
+.b2bi { font-size: 10.5px; color: rgba(255,255,255,.6); line-height: 1.75; padding-left: 14px; position: relative; }
+.b2bi::before { content: '➔'; position: absolute; left: 0; color: rgba(0,128,96,.45); font-size: 8.5px; top: 2px; }
+
+/* S8-10 — FLOW */
+.flow-card { background: rgba(0,128,96,.06); border: 1px solid rgba(0,128,96,.15); border-radius: 12px; padding: 16px 18px; }
+.fc-title { font-size: 11.5px; font-weight: 800; color: #4de3a8; margin-bottom: 6px; }
+.fc-desc { font-size: 11px; color: rgba(255,255,255,.47); line-height: 1.6; }
+
+.flow-node {
+  background: rgba(0,128,96,.1); border: 1.5px solid rgba(0,128,96,.35);
+  border-radius: 10px; padding: 12px 18px; text-align: center;
+  font-size: 12px; font-weight: 700; color: #4de3a8;
+}
+.flow-arrow { font-size: 20px; color: rgba(0,128,96,.5); text-align: center; }
+
+/* S11 — CHECKOUT */
+.co-feat { background: rgba(0,128,96,.055); border: 1px solid rgba(0,128,96,.14); border-radius: 12px; padding: 16px; }
+.co-title { font-size: 11.5px; font-weight: 800; color: #4de3a8; margin-bottom: 5px; }
+.co-desc { font-size: 10.5px; color: rgba(255,255,255,.42); line-height: 1.55; }
+
+/* S12 — SEARCH */
+.srch-pillar { background: rgba(0,128,96,.06); border: 1px solid rgba(0,128,96,.15); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.srch-icon { width: 36px; height: 36px; background: rgba(0,128,96,.12); border: 1px solid rgba(0,128,96,.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.srch-title { font-size: 12px; font-weight: 800; color: #4de3a8; }
+.srch-desc { font-size: 11px; color: rgba(255,255,255,.45); line-height: 1.55; }
+
+/* S14 — SIDEKICK */
+.sk-capability {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(0,128,96,.05); border: 1px solid rgba(0,128,96,.13);
+  border-radius: 10px; padding: 12px 14px;
+}
+.sk-num { width: 24px; height: 24px; border-radius: 50%; background: rgba(0,128,96,.15); border: 1.5px solid rgba(0,128,96,.35); color: #00c878; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sk-text { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.45; }
+.sk-text strong { color: #4de3a8; }
+
+/* S15 — GORGIAS */
+.gor-col { background: rgba(0,128,96,.05); border: 1px solid rgba(0,128,96,.14); border-radius: 14px; padding: 20px; flex: 1; }
+.gor-label { font-size: 9.5px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: #00c878; margin-bottom: 10px; }
+.gor-headline { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 14px; }
+
+/* S16 — Q&A */
+.qa-big { font-size: clamp(4rem, 8vw, 7rem); font-weight: 900; letter-spacing: -4px; line-height: 1; color: #fff; }
+.qa-big .y { color: #00c878; }
+
+/* ═══ DEMO DIAGRAM SLIDE ═══ */
+.demo-main { display: flex; gap: 24px; flex: 1; overflow: hidden; }
+.dc-core { display: flex; flex-direction: column; align-items: center; width: 260px; flex-shrink: 0; }
+.dc-core-card {
+  background: linear-gradient(160deg, #001a12, #000e08);
+  border: 1.5px solid rgba(0,128,96,.35); border-radius: 18px;
+  padding: 22px 20px; width: 100%;
+  box-shadow: 0 0 50px rgba(0,128,96,.12), inset 0 1px 0 rgba(255,255,255,.04);
+  position: relative; overflow: hidden;
+}
+.dc-core-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #008060, transparent);
+}
+.dc-core-title { text-align: center; font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -.4px; margin-bottom: 3px; }
+.dc-core-sub { text-align: center; font-size: 10px; font-weight: 700; color: #00c878; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 16px; }
+.dc-api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+.dc-api-pill { background: rgba(0,128,96,.07); border: 1px solid rgba(0,128,96,.2); border-radius: 7px; padding: 6px 8px; text-align: center; font-size: 9.5px; font-weight: 700; color: #4de3a8; letter-spacing: .2px; }
+.dc-api-pill.wide { grid-column: 1/-1; background: rgba(0,128,96,.12); border-color: rgba(0,128,96,.3); color: #00c878; }
+.dc-check { display: flex; align-items: center; gap: 7px; font-size: 10px; color: rgba(255,255,255,.42); }
+.dc-arrows { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 48px; flex-shrink: 0; padding-top: 20px; }
+.dc-ag { display: flex; flex-direction: column; align-items: center; flex: 1; justify-content: center; }
+.dc-albl { font-size: 8.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.28); margin-bottom: 5px; text-align: center; }
+.dc-aline { width: 2px; background: linear-gradient(180deg, rgba(0,128,96,.55), rgba(0,128,96,.15)); flex: 1; min-height: 50px; position: relative; }
+.dc-aline::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid rgba(0,128,96,.55); }
+.dc-adot { width: 7px; height: 7px; border-radius: 50%; background: #008060; box-shadow: 0 0 8px rgba(0,128,96,.9); flex-shrink: 0; margin: 3px 0; }
+.dc-demos { display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.dc-demo-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.dc-dnum { width: 23px; height: 23px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; }
+.dc-dnum.d1 { background: rgba(0,128,96,.15); border: 1.5px solid rgba(0,128,96,.4); color: #00c878; }
+.dc-dnum.d2 { background: rgba(212,170,110,.12); border: 1.5px solid rgba(212,170,110,.35); color: #d4aa6e; }
+.dc-dtitle { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.dc-dtitle.d1 { color: #00c878; }
+.dc-dtitle.d2 { color: #d4aa6e; }
+.dc-card { border-radius: 14px; padding: 18px 20px; position: relative; overflow: hidden; flex: 1; }
+.dc-card.d1 { background: linear-gradient(135deg, #0d1f2d, #091520); border: 1.5px solid rgba(0,160,220,.25); box-shadow: 0 0 30px rgba(0,140,200,.08); }
+.dc-card.d1::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(0,180,255,.6), transparent); }
+.dc-card.d2 { background: linear-gradient(135deg, #1e1508, #160f05); border: 1.5px solid rgba(212,170,110,.25); }
+.dc-card.d2::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(212,170,110,.6), transparent); }
+.dc-chip { font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 100px; letter-spacing: .3px; display: inline-block; }
+.dc-chip.d1 { background: rgba(0,160,220,.12); border: 1px solid rgba(0,160,220,.28); color: #60c8f0; }
+.dc-chip.d2 { background: rgba(212,170,110,.1); border: 1px solid rgba(212,170,110,.28); color: #d4aa6e; }
+.dc-chip.y { background: rgba(0,128,96,.1); border: 1px solid rgba(0,128,96,.25); color: #4de3a8; }
+.dc-partner-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(212,170,110,.1); border: 1px solid rgba(212,170,110,.3); border-radius: 7px; padding: 5px 10px; margin-bottom: 10px; font-size: 9px; font-weight: 700; color: #d4aa6e; letter-spacing: .5px; text-transform: uppercase; }
+.dc-pdot { width: 5px; height: 5px; border-radius: 50%; background: #d4aa6e; }
+.dc-sub-section { margin-bottom: 14px; }
+.dc-sub-label { font-size: 9.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: #60c8f0; margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+.dc-sub-desc { font-size: 10.5px; color: rgba(255,255,255,.4); line-height: 1.5; margin-bottom: 7px; }
+.dc-chips-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
+.dc-divider { border: none; border-top: 1px solid rgba(0,160,220,.12); margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<div class="presentation" id="pres">
+
+<!-- ──────────────────────────────────────
+     SLIDE 1 — COVER
+────────────────────────────────────── -->
+<div class="slide active" id="s1">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-glow-br"></div>
+  <!-- Shopify bag watermark -->
+  <svg style="position:absolute;right:-60px;bottom:-40px;opacity:.06;pointer-events:none;" width="460" height="520" viewBox="0 0 109 124" fill="none">
+    <path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/>
+    <path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/>
+    <path fill="#fff" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/>
+  </svg>
+
+  <div class="slide-header">
+    <div class="slide-logo">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg>
+      <div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div>
+    </div>
+    <div class="hdr-div"></div>
+    <div class="hdr-section">System Overview</div>
+    <div class="hdr-page">1 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="cover-wrap">
+      <div class="cover-x-logo">
+        <div class="cover-diamond">
+          <svg width="72" height="72" viewBox="0 0 44 44" fill="none">
+            <polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/>
+            <circle cx="22" cy="22" r="12.5" fill="#F5C800"/>
+            <text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text>
+          </svg>
+        </div>
+        <div class="cover-x">×</div>
+        <div class="cover-shopify-logo">
+          <svg width="46" height="52" viewBox="0 0 109 124" fill="none">
+            <path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/>
+            <path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/>
+            <path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/>
+          </svg>
+          <div style="display:flex;flex-direction:column;line-height:1.15;">
+            <span style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px;">Shopify</span>
+            <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:1.2px;text-transform:uppercase;">Commerce Platform</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cover-title">Inline Electric<br><span class="y">× Shopify</span></div>
+      <div class="cover-sub">System Overview &nbsp;·&nbsp; Platform Presentation</div>
+
+      <div class="cover-badge">
+        <div class="cover-cdot"></div>
+        April 22, 2026
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots1"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 2 — FOCUS ON INNOVATION
+────────────────────────────────────── -->
+<div class="slide" id="s2">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Platform Investment</div><div class="hdr-page">2 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">2021 – 2025</div>
+    <div class="stitle">Focus on <span class="y">Innovation</span></div>
+    <div class="sdesc">Shopify's commitment to B2B and AI-native commerce — by the numbers.</div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num">$1.55B</div>
+        <div class="stat-lbl">Spent on R&amp;D in 2025 — one of the highest ratios in enterprise commerce</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">50+</div>
+        <div class="stat-lbl">B2B-specific feature launches in the past two years</div>
+      </div>
+    </div>
+
+    <div class="fpill-grid">
+      <div class="fpill"><strong>✦ OpenAI Partnership</strong><small>ChatGPT integration · AI APIs · Catalog API for LLMs</small></div>
+      <div class="fpill"><strong>Checkout Extensibility</strong><small>Extensions · Shopify Functions · Cross-sell / upsell</small></div>
+      <div class="fpill"><strong>Shopify Sidekick</strong><small>AI assistant &amp; storebuilder</small></div>
+      <div class="fpill"><strong>B2B Markets</strong><small>Contextualise by location or customer segment</small></div>
+      <div class="fpill"><strong>ACH for B2B</strong><small>Native ACH processing for US</small></div>
+      <div class="fpill"><strong>Native ERP Connectors</strong><small>Acumatica · Oracle · Business Central</small></div>
+      <div class="fpill"><strong>Shopify Flow</strong><small>No-code commerce automation</small></div>
+      <div class="fpill"><strong>Go Global</strong><small>200+ countries · Multi-currency · Local payments</small></div>
+      <div class="fpill"><strong>Shopify Collective</strong><small>Connect stores as vendor, retailer, or both</small></div>
+      <div class="fpill"><strong>Draft Orders &amp; Quoting</strong><small>Quotes, carts &amp; pro-forma invoices</small></div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots2"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 3 — FORRESTER WAVE
+────────────────────────────────────── -->
+<div class="slide" id="s3">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Industry Recognition</div><div class="hdr-page">3 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div style="display:flex;gap:48px;align-items:flex-start;height:100%;">
+      <div style="flex:1;">
+        <div class="eyebrow">Forrester Wave™</div>
+        <div class="stitle">Leader in <span class="y">B2B Commerce</span></div>
+        <div class="sdesc">Recognised as a Leader in Shopify's first-ever appearance on the Forrester Wave for B2B — across every major evaluation criterion.</div>
+
+        <div class="fw-badge">
+          <div class="fw-wave">Forrester Wave™ · B2B Commerce</div>
+          <div class="fw-title">Leader</div>
+          <div class="fw-sub">Shopify's debut on the Forrester Wave — recognised across Front End, AI, Workflow, Innovation, and Market Presence</div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;">Evaluation Criteria</div>
+        <ul class="blist">
+          <li>Front End &amp; Storefront Capabilities</li>
+          <li>Promotions &amp; Merchandising</li>
+          <li>Application Architecture</li>
+          <li>AI &amp; Intelligent Commerce</li>
+          <li>Workflow &amp; Business Process Modeling</li>
+          <li>Innovation Velocity</li>
+          <li>Partner Ecosystem Depth</li>
+          <li>Market Presence &amp; Growth</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots3"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 4 — THE SHOPIFY ECOSYSTEM
+────────────────────────────────────── -->
+<div class="slide" id="s4">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Platform Ecosystem</div><div class="hdr-page">4 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">App Marketplace</div>
+    <div class="stitle">The Shopify <span class="y">Ecosystem</span></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <span style="font-size:14px;color:rgba(255,255,255,.45);">Over</span>
+      <span style="font-size:2rem;font-weight:900;color:#F5C800;letter-spacing:-1px;">8,000+</span>
+      <span style="font-size:14px;color:rgba(255,255,255,.45);">vetted apps across every commerce category</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:7px;">
+      <div class="ec hi">Personalization</div>
+      <div class="ec">Storefronts &amp; Content</div>
+      <div class="ec">Content Mgmt System</div>
+      <div class="ec">Fraud Protection</div>
+      <div class="ec hi">Search &amp; Discovery</div>
+      <div class="ec">Mobile App</div>
+      <div class="ec">Customer Support</div>
+
+      <div class="ec">Payment Platforms</div>
+      <div class="ec hi">Cart &amp; Checkout</div>
+      <div class="ec">Markets</div>
+      <div class="ec">Point of Sale</div>
+      <div class="ec">Subscriptions</div>
+      <div class="ec hi">Fulfillment</div>
+      <div class="ec">Data Warehouse</div>
+
+      <div class="ec">Global Markets</div>
+      <div class="ec hi">Operations &amp; Logistics</div>
+      <div class="ec">Data &amp; Compliance</div>
+      <div class="ec">Inventory / WMS</div>
+      <div class="ec hi">Marketing (Email/SMS)</div>
+      <div class="ec">Loyalty</div>
+      <div class="ec">Order Management</div>
+
+      <div class="ec">Installments</div>
+      <div class="ec hi">ERP Integrations</div>
+      <div class="ec hi">Data Intelligence</div>
+      <div class="ec">Product Info Mgmt</div>
+      <div class="ec">CRM</div>
+      <div class="ec">Returns</div>
+      <div class="ec">Core Commerce</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+      <span class="cy">✦ AI-Native</span>
+      <span class="cy">B2B Ready</span>
+      <span class="cy">Headless / Composable</span>
+      <span class="cy">Multi-Currency</span>
+      <span class="cy">Multi-Storefront</span>
+      <span class="cy">Enterprise Scale</span>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots4"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 5 — DEMO DIAGRAM (from inline-shopify-demo.html)
+────────────────────────────────────── -->
+<div class="slide" id="s5">
+  <div class="bg-grid"></div><div class="bg-glow"></div><div class="bg-glow-br"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Shopify Platform Overview</div><div class="hdr-page">5 / 19</div>
+    <div style="margin-left:auto;font-size:9.5px;font-weight:600;color:rgba(255,255,255,.22);">Today's Agenda</div>
+  </div>
+
+  <div class="sc">
+    <!-- Demo diagram main layout -->
+    <div class="demo-main">
+
+      <!-- Core Platform -->
+      <div class="dc-core">
+        <div class="dc-core-card">
+          <div style="width:44px;height:44px;border-radius:12px;background:rgba(245,200,0,.1);border:1px solid rgba(245,200,0,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8" stroke-linecap="round"><path d="M12 2a5 5 0 0 1 5 5c0 1.5-.7 2.9-1.7 3.8L17 21H7l1.7-10.2A5 5 0 0 1 7 7a5 5 0 0 1 5-5z"/><circle cx="12" cy="7" r="2"/></svg>
+          </div>
+          <div class="dc-core-title">Shopify Backend</div>
+          <div class="dc-core-sub">Managed by Shopify</div>
+          <div class="dc-api-grid">
+            <div class="dc-api-pill wide">✦ AI-Native Commerce Platform</div>
+            <div class="dc-api-pill">Shopify Sidekick</div>
+            <div class="dc-api-pill">AI Recommendations</div>
+            <div class="dc-api-pill">No-Code Flows</div>
+            <div class="dc-api-pill">Automation</div>
+            <div class="dc-api-pill">Smart Search</div>
+            <div class="dc-api-pill">Managed Infra</div>
+            <div class="dc-api-pill">Always On</div>
+          </div>
+          <div style="border-top:1px solid rgba(245,200,0,.1);margin:10px 0 9px;"></div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="dc-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Zero infrastructure to manage</div>
+            <div class="dc-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>AI built into every workflow</div>
+            <div class="dc-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>No-code &amp; low-code automations</div>
+            <div class="dc-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Updates ship automatically</div>
+          </div>
+          <div style="text-align:center;font-size:9px;color:rgba(255,255,255,.28);margin-top:10px;line-height:1.5;">Shopify handles the platform —<br>your team focuses on the business</div>
+        </div>
+      </div>
+
+      <!-- Arrows -->
+      <div class="dc-arrows">
+        <div class="dc-ag">
+          <div class="dc-albl">Demo 1</div>
+          <div class="dc-aline"></div>
+          <div class="dc-adot"></div>
+        </div>
+        <div style="height:16px;"></div>
+        <div class="dc-ag">
+          <div class="dc-albl">Demo 2</div>
+          <div class="dc-aline"></div>
+          <div class="dc-adot" style="background:#d4aa6e;box-shadow:0 0 8px #d4aa6e;"></div>
+        </div>
+      </div>
+
+      <!-- Demo Cards -->
+      <div class="dc-demos">
+
+        <!-- Demo 1 -->
+        <div>
+          <div class="dc-demo-label">
+            <div class="dc-dnum d1">1</div>
+            <div class="dc-dtitle d1">Demo One · Shopify AI &amp; Automation</div>
+          </div>
+          <div class="dc-card d1">
+            <!-- Section A -->
+            <div class="dc-sub-section">
+              <div class="dc-sub-label">
+                <div style="width:18px;height:18px;border-radius:5px;background:rgba(0,160,220,.15);border:1px solid rgba(0,160,220,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#60c8f0" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div>
+                Admin, Theme Editor &amp; B2B Markets
+              </div>
+              <div class="dc-sub-desc">Backend admin and visual theme editor in action, plus how Shopify's B2B and Markets features differentiate the platform.</div>
+              <div class="dc-chips-wrap">
+                <span class="dc-chip d1">Backend Admin</span>
+                <span class="dc-chip d1">Theme Editor</span>
+                <span class="dc-chip d1">B2B Commerce</span>
+                <span class="dc-chip d1">Shopify Markets</span>
+                <span class="dc-chip d1">Multi-Channel</span>
+              </div>
+            </div>
+            <hr class="dc-divider">
+            <!-- Section B -->
+            <div class="dc-sub-section" style="margin-bottom:10px;">
+              <div class="dc-sub-label">
+                <div style="width:18px;height:18px;border-radius:5px;background:rgba(0,160,220,.15);border:1px solid rgba(0,160,220,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#60c8f0" stroke-width="2.2" stroke-linecap="round"><path d="M12 2a5 5 0 0 1 3.5 8.5L17 22H7l1.5-11.5A5 5 0 0 1 12 2z"/></svg></div>
+                AI, Sidekick &amp; No-Code Flows
+              </div>
+              <div class="dc-sub-desc">Sidekick as your always-on commerce assistant, with no-code Flow automations that replace manual ops.</div>
+              <div class="dc-chips-wrap">
+                <span class="dc-chip d1">✦ Shopify Sidekick</span>
+                <span class="dc-chip d1">No-Code Flow Builder</span>
+                <span class="dc-chip d1">Smart Automations</span>
+                <span class="dc-chip d1">AI Recommendations</span>
+              </div>
+            </div>
+            <span class="dc-chip y">Live Demo</span>
+          </div>
+        </div>
+
+        <!-- Demo 2 -->
+        <div>
+          <div class="dc-demo-label">
+            <div class="dc-dnum d2">2</div>
+            <div class="dc-dtitle d2">Second Demo</div>
+          </div>
+          <div class="dc-card d2">
+            <div class="dc-partner-badge"><div class="dc-pdot"></div>Recommended Partner</div>
+            <div style="font-size:16px;font-weight:800;letter-spacing:-.4px;color:#fff;margin-bottom:8px;line-height:1.2;">Industry-Specific<br>Frontend Accelerator</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.45);line-height:1.55;margin-bottom:12px;">Our recommended partner has built a purpose-built storefront for your industry — sitting on top of Shopify's backend and inheriting all its AI, automation, and managed infrastructure.</div>
+            <div class="dc-chips-wrap">
+              <span class="dc-chip d2">Pre-built Storefront</span>
+              <span class="dc-chip d2">Industry-Specific UX</span>
+              <span class="dc-chip d2">Shopify AI Inherited</span>
+              <span class="dc-chip d2">Faster Time to Launch</span>
+              <span class="dc-chip y">Live Demo</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots5"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 6 — 1ST PARTY APPS
+────────────────────────────────────── -->
+<div class="slide" id="s6">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Built-in Tools</div><div class="hdr-page">6 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Included with Shopify Plus</div>
+    <div class="stitle">Shopify <span class="y">1st Party Apps</span></div>
+
+    <div style="display:flex;gap:24px;flex:1;overflow:hidden;">
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px;justify-content:center;">
+        <ul class="blist" style="gap:12px;">
+          <li>Built directly by Shopify — trusted, deeply integrated</li>
+          <li>Included with your Plus subscription at no extra cost</li>
+          <li>Fully supported by Shopify's engineering and support teams</li>
+          <li>Live within Shopify Admin — no separate logins or context switching</li>
+        </ul>
+      </div>
+
+      <div style="flex:1.4;">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;height:100%;">
+          <div class="app-tile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            Checkout Blocks
+          </div>
+          <div class="app-tile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M8 16h5"/></svg>
+            Shopify Forms
+          </div>
+          <div class="app-tile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><path d="M8 6h8M6 10h12M8 14h5"/><circle cx="17" cy="17" r="4"/><path d="M15 17h4M17 15v4"/></svg>
+            Shopify Flow
+          </div>
+          <div class="app-tile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Search &amp; Discovery
+          </div>
+          <div class="app-tile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+            Launchpad
+          </div>
+          <div class="app-tile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Shopify Email
+          </div>
+          <div class="app-tile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Shopify Inbox
+          </div>
+          <div class="app-tile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><path d="M12 2l2 7h7l-5.7 4.1L17 20l-5-3.6L7 20l1.7-6.9L3 9h7z"/></svg>
+            Shopify Bundles
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots6"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 7 — WHY SHOPIFY / B2B FEATURES
+────────────────────────────────────── -->
+<div class="slide" id="s7">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Shopify Demonstration</div><div class="hdr-page">7 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Shopify Demonstration</div>
+    <div class="stitle">Why Shopify <span class="y">for B2B?</span></div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;flex:1;overflow:hidden;">
+      <div class="b2bs">
+        <div class="b2bs-title">Checkout</div>
+        <div class="b2bi">B2B checkout &amp; one-page checkout</div>
+        <div class="b2bi">Payment &amp; delivery functions</div>
+        <div class="b2bi">B2B discounts &amp; branding</div>
+        <div class="b2bi">Support for digital goods</div>
+        <div class="b2bi">Checkout to draft</div>
+      </div>
+      <div class="b2bs">
+        <div class="b2bs-title">Catalogs</div>
+        <div class="b2bi">Customer-specific product publishing</div>
+        <div class="b2bi">Volume pricing &amp; quantity rules</div>
+        <div class="b2bi">Quantity price breaks</div>
+        <div class="b2bs-title" style="margin-top:12px;">Self-Serve Purchasing</div>
+        <div class="b2bi">Customer accounts &amp; easy reorders</div>
+        <div class="b2bi">PO numbers &amp; editable shipping</div>
+      </div>
+      <div class="b2bs">
+        <div class="b2bs-title">Flexible Payments</div>
+        <div class="b2bi">Payment terms &amp; vaulted cards</div>
+        <div class="b2bi">ACH, PayPal, &amp; manual methods</div>
+        <div class="b2bi">Partial payments, deposits &amp; quoting</div>
+        <div class="b2bi">Invoice from draft orders</div>
+      </div>
+      <div class="b2bs">
+        <div class="b2bs-title">Companies</div>
+        <div class="b2bi">Customer &amp; order migration</div>
+        <div class="b2bi">Company account requests</div>
+        <div class="b2bi">Sales staff permissions</div>
+        <div class="b2bi">B2B actions &amp; triggers in Flow</div>
+      </div>
+      <div class="b2bs">
+        <div class="b2bs-title">Storefront</div>
+        <div class="b2bi">Storefront contextualisation</div>
+        <div class="b2bi">Quick order lists</div>
+        <div class="b2bi">Headless B2B storefronts</div>
+        <div class="b2bi">B2B flagship theme — Trade</div>
+      </div>
+      <div class="b2bs">
+        <div class="b2bs-title">APIs &amp; Integrations</div>
+        <div class="b2bi">B2B APIs via GraphQL</div>
+        <div class="b2bi">B2B compatible apps</div>
+        <div class="b2bi">Native ERP integrations</div>
+        <div class="b2bi">Configure access scopes via CLI</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots7"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 8 — SHOPIFY FLOW OVERVIEW
+────────────────────────────────────── -->
+<div class="slide" id="s8">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Automation</div><div class="hdr-page">8 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Shopify Flow</div>
+    <div class="stitle">Commerce <span class="y">Automation</span> Solution</div>
+    <div class="sdesc">Create custom ecommerce automations with low-code building blocks — no servers, no complex code.</div>
+
+    <div class="g2" style="gap:14px;flex:1;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="flow-card">
+          <div class="fc-title">Low-Code Building Blocks</div>
+          <div class="fc-desc">Create workflows easily using Flow's simple trigger, condition, and action blocks. Manage inventory, prevent fraud, enhance loyalty, handle fulfillment — all in one platform.</div>
+        </div>
+        <div class="flow-card">
+          <div class="fc-title">Flexibility Your Business Needs</div>
+          <div class="fc-desc">Access Shopify Admin API data for custom workflows across use cases and 3rd-party apps. Write JavaScript for complex logic and data calculations with the <code style="font-size:10px;color:#ffe566;background:rgba(245,200,0,.1);padding:2px 5px;border-radius:4px;">Run code</code> action.</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="flow-card">
+          <div class="fc-title">Scales to Plus — Without Code</div>
+          <div class="fc-desc">Flow can do what a custom app can do, but you don't have to write code or host a server. Hundreds of pre-built, no-code templates ready to go.</div>
+        </div>
+        <div class="flow-card">
+          <div class="fc-title">Always On, So You Don't Have To Be</div>
+          <div class="fc-desc">Eliminate human error by automating loyalty, fraud, risk, and inventory decisions. Count on Shopify to complete your automated workflows 24/7.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots8"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 9 — FLOW FLEXIBILITY
+────────────────────────────────────── -->
+<div class="slide" id="s9">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Shopify Flow</div><div class="hdr-page">9 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Custom Automations</div>
+    <div class="stitle">Create ecommerce automations <span class="y">with flexibility</span></div>
+
+    <div style="display:flex;gap:32px;flex:1;align-items:center;">
+      <div style="flex:1;display:flex;flex-direction:column;gap:16px;">
+        <div class="ycard" style="padding:24px 28px;">
+          <div style="font-size:1.3rem;font-weight:800;color:#ffe566;margin-bottom:10px;letter-spacing:-.4px;">Access any data point in the Shopify Admin API</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;">Build automated workflows across all the business tools and apps that you use. Connect with existing apps using built-in Flow Connectors to automate tasks across your entire commerce stack.</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <span class="cy">Inventory management</span>
+          <span class="cy">Fraud prevention</span>
+          <span class="cy">Loyalty programs</span>
+          <span class="cy">Fulfillment routing</span>
+          <span class="cy">Customer tagging</span>
+          <span class="cy">Order management</span>
+        </div>
+      </div>
+
+      <div style="flex:0 0 280px;display:flex;flex-direction:column;gap:8px;align-items:center;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px;">Workflow Logic</div>
+        <div class="flow-node" style="width:100%;">✦ Trigger Event</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node" style="width:100%;background:rgba(245,200,0,.06);">Condition Check</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node" style="width:100%;">Action Executes</div>
+        <div style="margin-top:10px;font-size:10px;color:rgba(255,255,255,.3);text-align:center;">No server needed · Always on</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots9"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 10 — FLOW LOW-CODE
+────────────────────────────────────── -->
+<div class="slide" id="s10">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Shopify Flow</div><div class="hdr-page">10 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Low-Code Building Blocks</div>
+    <div class="stitle">Anyone can build <span class="y">powerful workflows</span></div>
+
+    <div style="display:flex;gap:28px;flex:1;align-items:stretch;">
+      <div style="flex:1;display:flex;flex-direction:column;gap:14px;justify-content:center;">
+        <div style="font-size:14px;color:rgba(255,255,255,.5);line-height:1.7;">With simple trigger, condition, and action blocks, anyone on your team can quickly create a workflow — no developer needed.</div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:rgba(245,200,0,.06);border:1px solid rgba(245,200,0,.15);border-radius:12px;">
+            <div style="width:32px;height:32px;border-radius:10px;background:rgba(245,200,0,.15);border:1px solid rgba(245,200,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">1</div>
+            <div><div style="font-size:12px;font-weight:700;color:#ffe566;margin-bottom:3px;">Trigger</div><div style="font-size:11px;color:rgba(255,255,255,.45);">Something happens — an order is placed, inventory drops, a customer joins a segment</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:rgba(245,200,0,.06);border:1px solid rgba(245,200,0,.15);border-radius:12px;">
+            <div style="width:32px;height:32px;border-radius:10px;background:rgba(245,200,0,.15);border:1px solid rgba(245,200,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">2</div>
+            <div><div style="font-size:12px;font-weight:700;color:#ffe566;margin-bottom:3px;">Condition</div><div style="font-size:11px;color:rgba(255,255,255,.45);">Check if criteria are met — order value, customer tag, product type, location, and more</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:rgba(245,200,0,.06);border:1px solid rgba(245,200,0,.15);border-radius:12px;">
+            <div style="width:32px;height:32px;border-radius:10px;background:rgba(245,200,0,.15);border:1px solid rgba(245,200,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">3</div>
+            <div><div style="font-size:12px;font-weight:700;color:#ffe566;margin-bottom:3px;">Action</div><div style="font-size:11px;color:rgba(255,255,255,.45);">Execute — tag customer, send email, update inventory, create task, trigger webhook, run code</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:0 0 300px;display:flex;flex-direction:column;gap:10px;justify-content:center;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;">Pre-built Template Examples</div>
+        <ul class="blist">
+          <li>Tag high-value customers automatically</li>
+          <li>Hide out-of-stock products from catalog</li>
+          <li>Auto-email when order is fulfilled late</li>
+          <li>Flag orders for fraud review</li>
+          <li>Send loyalty reward on 5th purchase</li>
+          <li>Notify sales rep on large B2B order</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots10"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 11 — CHECKOUT EXTENSIBILITY
+────────────────────────────────────── -->
+<div class="slide" id="s11">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Commerce</div><div class="hdr-page">11 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Checkout</div>
+    <div class="stitle">Checkout Customization <span class="y">&amp; Extensibility</span></div>
+    <div class="sdesc">Make the world's best-converting checkout your own.</div>
+
+    <div class="g3" style="flex:1;">
+      <div class="co-feat">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><div class="co-title">Checkout Branding API</div></div>
+        <div class="co-desc">Style the look and feel of your checkout to match your brand identity — colours, fonts, layout.</div>
+      </div>
+      <div class="co-feat">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><div class="co-title">Web Pixel API</div></div>
+        <div class="co-desc">Track behavioral data from storefront all the way through to checkout for richer analytics.</div>
+      </div>
+      <div class="co-feat">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><div class="co-title">Shopify Functions</div></div>
+        <div class="co-desc">Create custom business logic for discounts, payments, and shipping with your own apps.</div>
+      </div>
+      <div class="co-feat">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><div class="co-title">Checkout UI Extensions</div></div>
+        <div class="co-desc">Personalise and extend checkout functionality with public or custom apps — cross-sell, upsell, more.</div>
+      </div>
+      <div class="co-feat">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><div class="co-title">Post-Purchase Extensions</div></div>
+        <div class="co-desc">Add offers, surveys, social sharing, and more to post-purchase pages.</div>
+      </div>
+      <div class="co-feat">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg><div class="co-title">Checkout Sheet Kit</div></div>
+        <div class="co-desc">Bring your fully customised web checkout to your mobile app with a few lines of code.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots11"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 12 — SEARCH & DISCOVERY
+────────────────────────────────────── -->
+<div class="slide" id="s12">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Commerce</div><div class="hdr-page">12 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Search &amp; Discovery</div>
+    <div class="stitle">AI-Powered <span class="y">Product Discovery</span></div>
+
+    <div class="g4" style="flex:1;align-items:stretch;">
+      <div class="srch-pillar">
+        <div class="srch-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M8 12l2 2 4-4"/></svg></div>
+        <div class="srch-title">AI-Powered</div>
+        <div class="srch-desc">Smarter search and product recommendations using machine learning and semantic understanding.</div>
+      </div>
+      <div class="srch-pillar">
+        <div class="srch-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="srch-title">Superior Navigation</div>
+        <div class="srch-desc">Intuitive navigation that helps customers quickly find the products they're looking for.</div>
+      </div>
+      <div class="srch-pillar">
+        <div class="srch-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+        <div class="srch-title">In-Depth Reporting</div>
+        <div class="srch-desc">Gain valuable insights into your store's performance and customer behavior from search data.</div>
+      </div>
+      <div class="srch-pillar">
+        <div class="srch-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <div class="srch-title">Advanced Customizations</div>
+        <div class="srch-desc">Customize search, filters, and recommendations through the free Shopify Search &amp; Discovery app.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;padding:14px 18px;background:rgba(245,200,0,.06);border:1px solid rgba(245,200,0,.15);border-radius:12px;">
+      <div style="font-size:11px;font-weight:700;color:#ffe566;margin-bottom:4px;">Semantic Search — Supports 90+ languages</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.45);line-height:1.6;">AI-powered search goes beyond keyword matching to understand the <em>intent</em> behind a customer's search. Customers can use natural language and find relevant results — even with typos or partial phrases.</div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots12"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 13 — AI PRODUCT TAXONOMY
+────────────────────────────────────── -->
+<div class="slide" id="s13">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">AI-Powered Commerce</div><div class="hdr-page">13 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">AI-Powered</div>
+    <div class="stitle">AI Product Taxonomy <span class="y">&amp; Semantic Search</span></div>
+
+    <div class="g2" style="gap:20px;flex:1;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="ycard">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,200,0,.15);border:1px solid rgba(245,200,0,.3);display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><path d="M4 6h16M4 10h16M4 14h8M4 18h8"/></svg>
+            </div>
+            <div style="font-size:13px;font-weight:800;color:#ffe566;">AI-Suggested Product Taxonomy</div>
+          </div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.65;">Shopify's Standard Product Taxonomy, now equipped with AI-enabled recommendations. Algorithms use your product name, description, and images to suggest categories and attributes automatically.</div>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="cy">Faster product setup</span>
+            <span class="cy">Better classification</span>
+            <span class="cy">More sales</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="ycard">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,200,0,.15);border:1px solid rgba(245,200,0,.3);display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5C800" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+            <div style="font-size:13px;font-weight:800;color:#ffe566;">Semantic Search</div>
+          </div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.65;">Goes beyond keyword matching to understand the <em>intent</em> behind a customer's search. Customers can use natural language — "something to mount track lighting on a vaulted ceiling" — and find exactly what they need.</div>
+          <div style="margin-top:12px;padding:10px 14px;background:rgba(245,200,0,.08);border:1px solid rgba(245,200,0,.2);border-radius:10px;">
+            <div style="font-size:10px;font-weight:700;color:#F5C800;margin-bottom:3px;">✦ Now supports 90+ languages</div>
+            <div style="font-size:10.5px;color:rgba(255,255,255,.4);">Natural language search across your entire catalog, globally</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots13"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 14 — SIDEKICK
+────────────────────────────────────── -->
+<div class="slide" id="s14">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Shopify AI</div><div class="hdr-page">14 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Shopify AI</div>
+    <div class="stitle">Sidekick: <span class="y">Enhanced Reasoning</span></div>
+    <div class="sdesc">Your always-on AI commerce assistant — now significantly more capable.</div>
+
+    <div style="display:flex;gap:28px;flex:1;align-items:center;">
+      <div style="flex:1;display:flex;flex-direction:column;gap:9px;">
+        <div class="sk-capability">
+          <div class="sk-num">1</div>
+          <div class="sk-text"><strong>Advanced Reasoning Model</strong> — Significant advancement in Sidekick's core model, enabling complex multi-step thinking.</div>
+        </div>
+        <div class="sk-capability">
+          <div class="sk-num">2</div>
+          <div class="sk-text"><strong>Complex Multistep Tasks</strong> — Capable of handling requests that require sequencing multiple actions across your store.</div>
+        </div>
+        <div class="sk-capability">
+          <div class="sk-num">3</div>
+          <div class="sk-text"><strong>Synthesises Multiple Sources</strong> — Draws on orders, products, customers, analytics, and content simultaneously.</div>
+        </div>
+        <div class="sk-capability">
+          <div class="sk-num">4</div>
+          <div class="sk-text"><strong>Improved Intent Understanding</strong> — Better grasp of what you're actually trying to accomplish, not just the literal command.</div>
+        </div>
+        <div class="sk-capability">
+          <div class="sk-num">5</div>
+          <div class="sk-text"><strong>Proactive Next Steps</strong> — Suggests what to do next based on context, rather than waiting to be asked.</div>
+        </div>
+      </div>
+
+      <div style="flex:0 0 260px;">
+        <div class="ycard" style="padding:24px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;">Sidekick can…</div>
+          <ul class="blist" style="gap:11px;">
+            <li>Write product descriptions for your catalog</li>
+            <li>Analyse sales and surface trends</li>
+            <li>Set up discount campaigns</li>
+            <li>Troubleshoot store issues</li>
+            <li>Create and optimise automations</li>
+            <li>Answer complex "what if" questions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots14"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 15 — GORGIAS AI AGENTS
+────────────────────────────────────── -->
+<div class="slide" id="s15">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Partner Solution</div><div class="hdr-page">15 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="eyebrow">Shopify Partner — Gorgias</div>
+    <div class="stitle">Support &amp; Sales <span class="y">AI Agents</span></div>
+    <div class="sdesc">AI Agents that handle customer support and proactively drive sales — 24/7, personalised, always on brand.</div>
+
+    <div style="display:flex;gap:20px;flex:1;">
+      <div class="gor-col">
+        <div class="gor-label">Support Agent</div>
+        <div class="gor-headline">Personalised resolutions, 24/7</div>
+        <ul class="blist">
+          <li>Uses leading LLMs for dynamic, human-sounding conversations — trained on your brand voice, products, and policies</li>
+          <li>Connects to Shopify and other tools to process updates: editing orders, updating addresses, streamlining returns</li>
+          <li>Continuously improves with AI-driven QA and AI-powered Voice of Customer insights</li>
+        </ul>
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="cg">↑ Savings &amp; CSAT</span>
+          <span class="cy">24/7 Coverage</span>
+        </div>
+      </div>
+
+      <div class="gor-col">
+        <div class="gor-label">Sales Agent</div>
+        <div class="gor-headline">Engage, guide, and convert shoppers</div>
+        <ul class="blist">
+          <li>Detects shopper intent in real time — clicks, cart content, exit intent, and past purchase behavior to personalise conversations</li>
+          <li>Smart product discovery and recommendations using Shopify catalog for accurate, up-to-date info</li>
+          <li>Adapts discounting strategies dynamically, prioritising high-value opportunities to protect margins</li>
+        </ul>
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="cg">↑ AOV &amp; LTV</span>
+          <span class="cy">Personalised at Scale</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots15"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDE 16 — NEXT STEPS
+────────────────────────────────────── -->
+<div class="slide" id="s16">
+  <div class="bg-grid"></div><div class="bg-glow"></div><div class="bg-glow-br"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Q&amp;A</div><div class="hdr-page">16 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+
+  <div class="sc" style="justify-content:center;">
+    <div style="display:flex;gap:52px;align-items:center;flex:1;">
+      <div style="flex:1;">
+        <div class="eyebrow">Discussion</div>
+        <div class="qa-big">Shopify<br><span class="y">Q&amp;A</span></div>
+        <div style="margin-top:20px;font-size:15px;color:rgba(255,255,255,.38);line-height:1.6;">Open floor for questions on platform capabilities, B2B features, AI tools, and implementation approach.</div>
+      </div>
+
+      <div style="flex:0 0 340px;display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px;">Topics covered today</div>
+        <ul class="blist">
+          <li>Shopify Platform &amp; AI capabilities</li>
+          <li>B2B Commerce features</li>
+          <li>Shopify Flow automation</li>
+          <li>Checkout extensibility</li>
+          <li>Search &amp; Discovery — AI-powered</li>
+          <li>Sidekick — enhanced AI assistant</li>
+          <li>Gorgias — Support &amp; Sales AI agents</li>
+          <li>Demo: Admin, Theme Editor, B2B Markets</li>
+          <li>Demo: Industry-specific partner accelerator</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots16"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────
+     SLIDES 17-19: Placeholder content cards
+     (original PDF pages that were image-heavy —
+      keeping count accurate for the nav)
+────────────────────────────────────── -->
+<div class="slide" id="s17">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Key Highlights</div><div class="hdr-page">17 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+  <div class="sc" style="justify-content:center;align-items:center;">
+    <div class="eyebrow">Summary</div>
+    <div class="stitle" style="text-align:center;">Why <span class="y">Inline Electric</span><br>Belongs on Shopify</div>
+    <div style="display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;justify-content:center;">
+      <div class="dkcard" style="max-width:200px;text-align:center;"><div style="font-size:1.8rem;font-weight:900;color:#F5C800;margin-bottom:6px;">B2B</div><div style="font-size:11px;color:rgba(255,255,255,.45);">Purpose-built B2B features for electrical distributors</div></div>
+      <div class="dkcard" style="max-width:200px;text-align:center;"><div style="font-size:1.8rem;font-weight:900;color:#F5C800;margin-bottom:6px;">AI</div><div style="font-size:11px;color:rgba(255,255,255,.45);">Sidekick + Semantic Search + AI taxonomy built in</div></div>
+      <div class="dkcard" style="max-width:200px;text-align:center;"><div style="font-size:1.8rem;font-weight:900;color:#F5C800;margin-bottom:6px;">ERP</div><div style="font-size:11px;color:rgba(255,255,255,.45);">Native connectors to Acumatica, Oracle, Business Central</div></div>
+      <div class="dkcard" style="max-width:200px;text-align:center;"><div style="font-size:1.8rem;font-weight:900;color:#F5C800;margin-bottom:6px;">Flow</div><div style="font-size:11px;color:rgba(255,255,255,.45);">Replace manual ops with no-code automations</div></div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots17"></div>
+  </div>
+</div>
+
+<div class="slide" id="s18">
+  <div class="bg-grid"></div><div class="bg-glow"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Next Steps</div><div class="hdr-page">18 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+  <div class="sc" style="justify-content:center;">
+    <div style="display:flex;gap:40px;flex:1;align-items:center;">
+      <div style="flex:1;">
+        <div class="eyebrow">Path Forward</div>
+        <div class="stitle">Recommended <span class="y">Next Steps</span></div>
+      </div>
+      <div style="flex:1.2;display:flex;flex-direction:column;gap:10px;">
+        <div class="flow-card"><div class="fc-title">1 · Discovery &amp; Scoping Session</div><div class="fc-desc">Deep-dive into Inline's current tech stack, B2B workflows, ERP integration requirements, and migration timeline.</div></div>
+        <div class="flow-card"><div class="fc-title">2 · Partner Introduction</div><div class="fc-desc">Introduction to our recommended industry-specific frontend accelerator partner for the Demo 2 accelerator conversation.</div></div>
+        <div class="flow-card"><div class="fc-title">3 · Commercial Proposal</div><div class="fc-desc">Shopify Plus agreement tailored to Inline's scale, including B2B feature access and onboarding support.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots18"></div>
+  </div>
+</div>
+
+<div class="slide" id="s19">
+  <div class="bg-grid"></div><div class="bg-glow"></div><div class="bg-glow-br"></div>
+  <div class="slide-header">
+    <div class="slide-logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/><circle cx="22" cy="22" r="12.5" fill="#F5C800"/><text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text></svg><div class="wm"><span class="wm-main">INLINE</span><span class="wm-sub">Lighting Electrical</span></div></div>
+    <div class="hdr-div"></div><div class="hdr-section">Thank You</div><div class="hdr-page">19 / 19</div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;opacity:.55;">
+      <svg width="14" height="16" viewBox="0 0 109 124" fill="none"><path fill="#95BF47" d="M74.7 14.8c-.1-.7-.7-1.1-1.2-1.1s-9.7-.2-9.7-.2-6.5-6.4-7.1-7.1c-.2-.2-.5-.3-.8-.4l-4.7 96 25.3-5.4S74.8 15.5 74.7 14.8z"/><path fill="#5E8E3E" d="M54 5.8c-.1 0-.2 0-.3.1-.1 0-.2.1-.3.1-1.1.3-2.3.7-3.5 1.2C48.5 3.6 46.4 2 43.9 2c-.1 0-.2 0-.3 0C43 .8 41.8.2 40.5.2c-9.8 0-14.5 12.3-16 18.5l-6.8 2.1c-2.1.7-2.2.7-2.4 2.7C15.1 25.3 8 80.7 8 80.7L60.9 91l-2.2-85.3c-.8.1-3.2-.1-4.7.1z"/><path fill="#FFF" d="M38.5 19.2c-.3.1-.7.2-1 .3v-.3c0-2.9-.4-5.3-1.1-7.2 2.8.3 4.6 3.5 5.5 7.2h-3.4z"/></svg>
+      <span style="font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px;">Shopify</span>
+    </div>
+  </div>
+  <div class="sc" style="justify-content:center;align-items:center;">
+    <div style="text-align:center;">
+      <svg width="80" height="80" viewBox="0 0 44 44" fill="none" style="margin-bottom:24px;filter:drop-shadow(0 0 30px rgba(245,200,0,.4));">
+        <polygon points="22,1 43,22 22,43 1,22" fill="#111" stroke="#F5C800" stroke-width="1.8"/>
+        <circle cx="22" cy="22" r="12.5" fill="#F5C800"/>
+        <text x="22" y="25.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="6.8" font-weight="900" fill="#111" letter-spacing="0.6">INLINE</text>
+      </svg>
+      <div style="font-size:2.8rem;font-weight:900;letter-spacing:-1.5px;color:#fff;line-height:1.1;margin-bottom:12px;">Thank You,<br><span style="color:#F5C800;">Inline Electric</span></div>
+      <div style="font-size:14px;color:rgba(255,255,255,.35);margin-bottom:32px;">Prepared by Shopify · April 22, 2026</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <span class="cy">shopify.com/plus</span>
+        <span class="cy">B2B Commerce</span>
+        <span class="cy">AI-Native Platform</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <div class="sfl">Prepared for Inline Lighting Electrical · Powered by Shopify</div>
+    <div class="sfd" id="dots19"></div>
+  </div>
+</div>
+
+</div><!-- /presentation -->
+
+<!-- Navigation -->
+<div class="nav-overlay" id="navBar">
+  <button class="nbtn" onclick="navigate(-1)" title="Previous (←)">&#8592;</button>
+  <span class="ncnt" id="counter">1 / 19</span>
+  <button class="nbtn" onclick="navigate(1)" title="Next (→)">&#8594;</button>
+</div>
+
+<script>
+const TOTAL = 19;
+let cur = 0;
+
+function buildDots() {
+  for (let i = 1; i <= TOTAL; i++) {
+    const el = document.getElementById('dots' + i);
+    if (!el) continue;
+    el.innerHTML = '';
+    // show max 19 dots (all of them, small)
+    for (let j = 0; j < TOTAL; j++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (j === i - 1 ? ' on' : '');
+      el.appendChild(d);
+    }
+  }
+}
+
+function show(n) {
+  document.getElementById('s' + (cur + 1)).classList.remove('active');
+  cur = ((n % TOTAL) + TOTAL) % TOTAL;
+  document.getElementById('s' + (cur + 1)).classList.add('active');
+  document.getElementById('counter').textContent = (cur + 1) + ' / ' + TOTAL;
+  // update dots
+  for (let i = 1; i <= TOTAL; i++) {
+    const el = document.getElementById('dots' + i);
+    if (!el) continue;
+    const dots = el.querySelectorAll('.dot');
+    dots.forEach((d, j) => d.classList.toggle('on', j === cur));
+  }
+}
+
+function navigate(dir) { show(cur + dir); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); navigate(-1); }
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(TOTAL - 1);
+});
+
+// Show nav on mouse move, hide after idle
+let navTimeout;
+document.addEventListener('mousemove', () => {
+  document.getElementById('navBar').style.opacity = '1';
+  clearTimeout(navTimeout);
+  navTimeout = setTimeout(() => document.getElementById('navBar').style.opacity = '0', 2500);
+});
+
+buildDots();
+</script>
+</body>
+</html>
